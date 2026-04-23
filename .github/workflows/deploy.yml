@@ -21,11 +21,19 @@ jobs:
       - name: Login to GHCR
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Build Docker image
-        run: docker build -t ghcr.io/405found404/app:${{ github.ref_name }} ./backend
+      # 🔹 BACKEND IMAGE
+      - name: Build Backend Image
+        run: docker build -t ghcr.io/405found404/backend:${{ github.ref_name }} ./backend
 
-      - name: Push Docker image
-        run: docker push ghcr.io/405found404/app:${{ github.ref_name }}
+      - name: Push Backend Image
+        run: docker push ghcr.io/405found404/backend:${{ github.ref_name }}
+
+      # 🔹 FRONTEND IMAGE
+      - name: Build Frontend Image
+        run: docker build -t ghcr.io/405found404/frontend:${{ github.ref_name }} ./frontend
+
+      - name: Push Frontend Image
+        run: docker push ghcr.io/405found404/frontend:${{ github.ref_name }}
 
   deploy-staging:
     runs-on: ubuntu-latest
@@ -40,16 +48,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Deploy to staging (SSM)
+      - name: Deploy to staging
         run: |
           aws ssm send-command \
             --instance-ids ${{ secrets.INSTANCE_ID_STAGING }} \
             --document-name "AWS-RunShellScript" \
             --parameters commands='[
-              "docker pull ghcr.io/405found404/app:staging",
-              "docker stop app || true",
-              "docker rm app || true",
-              "docker run -d -p 80:3000 --name app ghcr.io/405found404/app:staging"
+              "docker pull ghcr.io/405found404/backend:staging",
+              "docker pull ghcr.io/405found404/frontend:staging",
+
+              "docker stop backend || true",
+              "docker rm backend || true",
+              "docker run -d -p 3000:3000 --name backend ghcr.io/405found404/backend:staging",
+
+              "docker stop frontend || true",
+              "docker rm frontend || true",
+              "docker run -d -p 80:80 --name frontend ghcr.io/405found404/frontend:staging"
             ]'
 
   deploy-production:
@@ -57,7 +71,7 @@ jobs:
     needs: build-and-push
     if: github.ref == 'refs/heads/main'
     environment:
-      name: production # manual approval
+      name: production
 
     steps:
       - name: Configure AWS
@@ -67,14 +81,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Deploy to production (SSM)
+      - name: Deploy to production
         run: |
           aws ssm send-command \
             --instance-ids ${{ secrets.INSTANCE_ID_PROD }} \
             --document-name "AWS-RunShellScript" \
             --parameters commands='[
-              "docker pull ghcr.io/405found404/app:main",
-              "docker stop app || true",
-              "docker rm app || true",
-              "docker run -d -p 80:3000 --name app ghcr.io/405found404/app:main"
+              "docker pull ghcr.io/405found404/backend:main",
+              "docker pull ghcr.io/405found404/frontend:main",
+
+              "docker stop backend || true",
+              "docker rm backend || true",
+              "docker run -d -p 3000:3000 --name backend ghcr.io/405found404/backend:main",
+
+              "docker stop frontend || true",
+              "docker rm frontend || true",
+              "docker run -d -p 80:80 --name frontend ghcr.io/405found404/frontend:main"
             ]'
