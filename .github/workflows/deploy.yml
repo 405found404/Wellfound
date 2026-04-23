@@ -56,14 +56,15 @@ jobs:
             --parameters commands='[
               "docker pull ghcr.io/405found404/backend:staging",
               "docker pull ghcr.io/405found404/frontend:staging",
-
+         
               "docker stop backend || true",
               "docker rm backend || true",
-              "docker run -d -p 3000:3000 --name backend ghcr.io/405found404/backend:staging",
+              "docker network create app-network || true
+              "docker run -d --network app-network  -p 3000:3000 --name backend ghcr.io/405found404/backend:staging",
 
               "docker stop frontend || true",
               "docker rm frontend || true",
-              "docker run -d -p 80:80 --name frontend ghcr.io/405found404/frontend:staging"
+              "docker run -d --network app-network -p 80:80 --name frontend ghcr.io/405found404/frontend:staging"
             ]'
 
   deploy-production:
