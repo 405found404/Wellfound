@@ -5,4 +5,4 @@ RUN npm install && npm run build
 
 FROM nginx:alpine
 COPY nginx.conf/etc/nginx/conf.d/default.conf
-COPY BUILD /usr/share/nginx/html
+COPY build /usr/share/nginx/html
