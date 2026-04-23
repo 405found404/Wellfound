@@ -93,7 +93,7 @@ jobs:
 
               "docker stop backend || true",
               "docker rm backend || true",
-              "docker network create app-network || true",--network app-network
+              "docker network create app-network || true",
               "docker run -d --network app-network -p 3000:3000 --name backend ghcr.io/405found404/backend:main",
 
               "docker stop frontend || true",
