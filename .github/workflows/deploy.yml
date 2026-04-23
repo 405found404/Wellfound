@@ -15,13 +15,13 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Login to GHCR
-        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u USERNAME --password-stdin
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u Wellfound --password-stdin
 
       - name: Build Docker Image
-        run: docker build -t ghcr.io/USERNAME/app:${{ github.ref_name }} .
+        run: docker build -t ghcr.io/Wellfound/app:${{ github.ref_name }} .
 
       - name: Push Image
-        run: docker push ghcr.io/USERNAME/app:${{ github.ref_name }}
+        run: docker push ghcr.io/Wellfound/app:${{ github.ref_name }}
 
   deploy-staging:
     runs-on: ubuntu-latest
