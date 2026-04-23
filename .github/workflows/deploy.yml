@@ -59,7 +59,7 @@ jobs:
          
               "docker stop backend || true",
               "docker rm backend || true",
-              "docker network create app-network || true
+              "docker network create app-network || true",
               "docker run -d --network app-network  -p 3000:3000 --name backend ghcr.io/405found404/backend:staging",
 
               "docker stop frontend || true",
@@ -93,10 +93,11 @@ jobs:
 
               "docker stop backend || true",
               "docker rm backend || true",
-              "docker run -d -p 3000:3000 --name backend ghcr.io/405found404/backend:main",
+              "docker network create app-network || true",--network app-network
+              "docker run -d --network app-network -p 3000:3000 --name backend ghcr.io/405found404/backend:main",
 
               "docker stop frontend || true",
               "docker rm frontend || true",
-              "docker run -d -p 80:80 --name frontend ghcr.io/405found404/frontend:main"
+              "docker run -d --network app-network -p 80:80 --name frontend ghcr.io/405found404/frontend:main"
             ]'
             
