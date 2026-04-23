@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const API_URL = "http://15.206.79.134:300";
+const API_URL = "http://15.206.79.134:3000";
 app.get("/", (req, res) => {
   res.send("Hello from DevOps Demo 🚀");
 });
